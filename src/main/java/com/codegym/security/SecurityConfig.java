@@ -71,24 +71,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+        return http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/login", "/register", "/hello").permitAll()
-                                .requestMatchers("/users/**").hasAnyAuthority("ROLE_USER")
-                                .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.GET).hasAnyRole("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-//                        .requestMatchers(HttpMethod.DELETE, "/categories",
-//                                "/typeOfQuestions",
-//                                "/questions",
-//                                "/answers",
-//                                "/quizzes",
-//                                "/hello").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/users").hasAnyAuthority("ROLE_USER")
+                        .requestMatchers(
+                                "/api/visitors/**",  // Đặt visitor endpoints lên đầu
+                                "/ws/**",           // WebSocket endpoints
+                                "/login",
+                                "/register"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books/**", "/api/news-events/**", "/api/visitors/**").permitAll()
+                        .requestMatchers("/api/books/**").authenticated()
+                        .requestMatchers("/users/**").hasAnyAuthority("ROLE_USER")
+                        .requestMatchers("/admin/**", "/api/categories/**", "/api/subcategories/**").hasAnyAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()))
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                )
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }
