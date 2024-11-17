@@ -12,4 +12,5 @@ public class NewsEventDTO {
     private LocalDateTime endTime;
     private String content;
     private String imageUrl;
+    private LocalDateTime createdAt;
 }

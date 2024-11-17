@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/news-events")
@@ -71,5 +72,11 @@ public class NewsEventController {
     public ResponseEntity<Page<NewsEventDTO>> getAllNewsEvents(Pageable pageable) {
         Page<NewsEventDTO> newsEvents = newsEventService.getAllNewsEvents(pageable);
         return ResponseEntity.ok(newsEvents);
+    }
+
+    @GetMapping("/latest")
+    public ResponseEntity<List<NewsEventDTO>> getLatestFourNewsEvents() {
+        List<NewsEventDTO> latestEvents = newsEventService.getLatestFourNewsEvents();
+        return ResponseEntity.ok(latestEvents);
     }
 }

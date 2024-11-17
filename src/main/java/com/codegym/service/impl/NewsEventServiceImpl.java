@@ -7,8 +7,13 @@ import com.codegym.service.NewsEventService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NewsEventServiceImpl implements NewsEventService {
@@ -57,5 +62,20 @@ public class NewsEventServiceImpl implements NewsEventService {
                     BeanUtils.copyProperties(newsEvent, dto);
                     return dto;
                 });
+    }
+
+    @Override
+    public List<NewsEventDTO> getLatestFourNewsEvents() {
+        Pageable pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<NewsEvent> latestEvents = newsEventRepository.findAll(pageable).getContent();
+        return latestEvents.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private NewsEventDTO convertToDTO(NewsEvent newsEvent) {
+        NewsEventDTO dto = new NewsEventDTO();
+        BeanUtils.copyProperties(newsEvent, dto);
+        return dto;
     }
 }
