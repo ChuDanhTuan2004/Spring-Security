@@ -76,19 +76,18 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/visitors/**",  // Đặt visitor endpoints lên đầu
-                                "/ws/**",           // WebSocket endpoints
-                                "/login",
-                                "/register"
+                                "/api/visitors/**",
+                                "/api/news-events/**",
+                                "/ws/**",
+                                "/login"
+//                                "/register"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/books/**", "/api/news-events/**", "/api/visitors/**").permitAll()
-                        .requestMatchers("/api/books/**").authenticated()
-                        .requestMatchers("/users/**").hasAnyAuthority("ROLE_USER")
-                        .requestMatchers("/admin/**", "/api/categories/**", "/api/subcategories/**").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/books/**", "/api/visitors/**").permitAll()
+                        .requestMatchers("/api/books/**", "/admin/**", "/api/categories/**", "/api/subcategories/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
